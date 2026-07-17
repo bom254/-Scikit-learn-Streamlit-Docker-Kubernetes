@@ -14,11 +14,11 @@ from reportlab.lib.utils import ImageReader
 
 # Load data
 iris = load_iris()
-x = pd.DataFrame(iris.data, columns=iris.feature_namea)
+X = pd.DataFrame(iris.data, columns=iris.feature_names)
 y = iris.target
 labels = iris.target_names
 
-# split
+# Split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # Train
@@ -27,16 +27,16 @@ clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test)
 
 # Evaluation
-report = classification_report(ytest, y_pred, target_names=labels)
+report = classification_report(y_test, y_pred, target_names=labels)
 conf_matrix = confusion_matrix(y_test, y_pred)
 accuracy = clf.score(X_test, y_test)
 
 # Streamlit App
 st.set_page_config(page_title="Iris Classifier", layout="wide")
-st.title("Iris Flower Classification - Streamlit ML App")
+st.title("🌸 Iris Flower Classification - Streamlit ML App")
 
 # Show raw data
-if st.checkbox("Show Raw Data"):
+if st.checkbox("📊 Show Raw Data"):
     st.write(X)
 
 # Model Summary
@@ -46,36 +46,38 @@ Training set size: {len(X_train)}
 Test set size: {len(X_test)}
 Model accuracy: {accuracy:.2f}
 """
-st.subheader("Model Summary")
+st.subheader("🧠 Model Summary")
 st.text(model_summary)
 
 # Classification Report
-st.subheader("Classification Report")
+st.subheader("📄 Classification Report")
 st.text(report)
 
 # Confusion Matrix Plot
-st.subheader(" Confusion Matrix")
+st.subheader("🔍 Confusion Matrix")
 fig_conf, ax_conf = plt.subplots()
 sns.heatmap(conf_matrix, annot=True, fmt='d',
             xticklabels=labels, yticklabels=labels, cmap="YlGnBu", ax=ax_conf)
 st.pyplot(fig_conf)
 
-# Feature Importance plot
-st.subheader("Feature Importance")
+# Feature Importance Plot
+st.subheader("📌 Feature Importance")
 fig_feat, ax_feat = plt.subplots()
-pd.Series(clf.feature_importances_, index=X.colums).sort_values().plot(kind='barh', color='teal', ax=ax_feat)
+pd.Series(clf.feature_importances_, index=X.columns).sort_values().plot(kind='barh', color='teal', ax=ax_feat)
 st.pyplot(fig_feat)
 
 # Sidebar Input
-st.sidebar.header("Predict New Sample")
-sepal_length = st.sidebar.slider("Sepal length (cm)", float(X.min()[0]), float(X.max()[0]), float(X.mean()[0]))
-sepal_width = st.sidebar.slider("Sepal length (cm)", float(X.min()[0]), float(X.max()[0]), float(X.mean()[0]))
-petal_length = st.sidebar.slider("Sepal length (cm)", float(X.min()[0]), float(X.max()[0]), float(X.mean()[0]))
-petal_width = st.sidebar.slider("Sepal length (cm)", float(X.min()[0]), float(X.max()[0]), float(X.mean()[0]))
+st.sidebar.header("🔍 Predict New Sample")
+sepal_length = st.sidebar.slider("Sepal length (cm)", float(X.min().iloc[0]), float(X.max().iloc[0]), float(X.mean().iloc[0]))
+sepal_width = st.sidebar.slider("Sepal width (cm)", float(X.min().iloc[1]), float(X.max().iloc[1]), float(X.mean().iloc[1]))
+petal_length = st.sidebar.slider("Petal length (cm)", float(X.min().iloc[2]), float(X.max().iloc[2]), float(X.mean().iloc[2]))
+petal_width = st.sidebar.slider("Petal width (cm)", float(X.min().iloc[3]), float(X.max().iloc[3]), float(X.mean().iloc[3]))
 
 sample = [[sepal_length, sepal_width, petal_length, petal_width]]
 prediction = clf.predict(sample)
-st.sidebar.success(f"Prediction: {labels[prediction[0]]}")
+st.sidebar.success(f"🌸 Prediction: {labels[prediction[0]]}")
+
+
 
 # Generate PDF with plots
 def generate_pdf_with_plots(report_text, model_summary_text, fig_conf, fig_feat):
@@ -83,13 +85,13 @@ def generate_pdf_with_plots(report_text, model_summary_text, fig_conf, fig_feat)
     c = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # Page 1
+    #---- Page 1 ----
     # Add model summary
     text = c.beginText(40, height - 40)
     text.setFont("Helvetica-Bold", 12)
     text.textLine("Model Summary")
     text.setFont("Helvetica", 10)
-    for line in model_summary_text.plit('\n'):
+    for line in model_summary_text.split('\n'):
         text.textLine(line)
     c.drawText(text)
 
@@ -105,9 +107,8 @@ def generate_pdf_with_plots(report_text, model_summary_text, fig_conf, fig_feat)
     c.drawText(text)
 
     c.showPage()
-
-
-    # Page 2
+    
+    # ---- Page 2 ----
     # Save confusion matrix image
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_conf:
         fig_conf.savefig(tmp_conf.name, bbox_inches='tight')
@@ -123,7 +124,7 @@ def generate_pdf_with_plots(report_text, model_summary_text, fig_conf, fig_feat)
     buffer.seek(0)
     return buffer
 
-# PDF Export button
-if st.button("Download Full PDF Report"):
+# PDF Export Button
+if st.button("📝 Download Full PDF Report"):
     pdf = generate_pdf_with_plots(report, model_summary, fig_conf, fig_feat)
-    st.download_button("Download PDF", pdf, file_name="iris_detailed_report.pdf", mime="application/pdf")
+    st.download_button("📥 Download PDF", pdf, file_name="iris_detailed_report.pdf", mime="application/pdf")

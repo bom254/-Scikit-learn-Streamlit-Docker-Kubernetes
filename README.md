@@ -65,12 +65,12 @@ docker login -u iquantc
 
 ### Tag Your Local Docker Image
 ```sh
-docker tag streamlit-ml-app:latest iquantc/streamlit-ml-app:latest
+docker tag streamlit-ml-app:latest b00mgr3rt/streamlit-ml-app:latest
 ```
 
 ### Push the Image to DockerHub
 ```sh
-docker push iquantc/streamlit-ml-app:latest
+docker push b00mgr3rt/streamlit-ml-app:latest
 ```
 
 
